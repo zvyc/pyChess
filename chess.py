@@ -291,7 +291,8 @@ def find_straight_positions_between(piece1, piece2):
   return path_positions
 
 
-def is_checkmate(attacking_pos, attacking_piece_type):
+# def is_checkmate(attacking_pos, attacking_piece_type):
+def is_checkmate(attacking_piece_type):
   if attacking_piece_type[0] == 'w':
     defending_color = 'b'
   else:
@@ -307,7 +308,7 @@ def is_checkmate(attacking_pos, attacking_piece_type):
           king_row = row_index
           king_column = column_index
           break
-  print("KING", king_row, king_column)
+
   king_piece = [king_row, king_column, defending_color + 'K']
   
   # Check if king is in check
@@ -332,60 +333,64 @@ def is_checkmate(attacking_pos, attacking_piece_type):
       print("King can move safely!!")
       return False
 
-  ## See if attacker can be captured
-  attacking_piece = [attacking_pos[0], attacking_pos[1], attacking_piece_type]
-
-  # Check for bishop
-  if attacking_piece_type[1] == 'B':
-    path_positions = find_diagonal_positions_between(attacking_piece, king_piece)
-
-    for pos in path_positions:
-      for row_index in range(len(board)):
-        for column_index in range(len(board[row_index])):
-          # See if every piece can capture
-          piece = [row_index, column_index, board[row_index][column_index]]
-          if piece[2][0] == defending_color and possible_move(piece, [pos[0], pos[1], board[pos[0]][pos[1]]], board) and safe_for_own_king(piece, [pos[0], pos[1], board[pos[0]][pos[1]]]):
-            print("Can block attacker!")
-            return False
-
-  # Check for rook
-  elif attacking_piece_type[1] == 'R':
-    path_positions = find_straight_positions_between(attacking_piece, king_piece)
-
-    for pos in path_positions:
-      for row_index in range(len(board)):
-        for column_index in range(len(board[row_index])):
-          # See if every piece can capture
-          piece = [row_index, column_index, board[row_index][column_index]]
-          if piece[2][0] == defending_color and possible_move(piece, [pos[0], pos[1], board[pos[0]][pos[1]]], board) and safe_for_own_king(piece, [pos[0], pos[1], board[pos[0]][pos[1]]]):
-            print("Can block attacker!")
-            return False
-
-  # Check for queen (All other pieces attacks cant be blocked)
-  elif attacking_piece_type[1] == 'Q':
-    # If the queen is not horizontally or vertically aligned with the king it has to be attacking from the diagonal
-    path_positions = find_straight_positions_between(attacking_piece, king_piece)
-    if path_positions == []:
-      path_positions = find_diagonal_positions_between(attacking_piece, king_piece)
-
-    for pos in path_positions:
-      for row_index in range(len(board)):
-        for column_index in range(len(board[row_index])):
-          # See if every piece can capture
-          piece = [row_index, column_index, board[row_index][column_index]]
-          if piece[2][0] == defending_color and possible_move(piece, [pos[0], pos[1], board[pos[0]][pos[1]]], board) and safe_for_own_king(piece, [pos[0], pos[1], board[pos[0]][pos[1]]]):
-            print("Can block attacker!")
-            return False
-
-
-  ## See if the attack can be blocked
+  # Find the attacker position (have to do this because the moved piece is not always the attacker, see discoverad attack i.e)
   for row_index in range(len(board)):
       for column_index in range(len(board[row_index])):
-        # See if every piece can capture
-        piece = [row_index, column_index, board[row_index][column_index]]
-        if piece[2][0] == defending_color and possible_move(piece, attacking_piece, board) and safe_for_own_king(piece, attacking_piece):
-          print("Can capture attacker!")
-          return False
+        attacking_piece = [row_index, column_index, board[row_index][column_index]]
+        if attacking_piece[2][0] == attacking_piece_type[0] and possible_move(attacking_piece, [king_row, king_column, 'wK'], board):
+          
+          # Check for bishop
+          if attacking_piece_type[1] == 'B':
+            path_positions = find_diagonal_positions_between(attacking_piece, king_piece)
+
+            for pos in path_positions:
+              for row_index in range(len(board)):
+                for column_index in range(len(board[row_index])):
+                  # See if every piece can capture
+                  piece = [row_index, column_index, board[row_index][column_index]]
+                  if piece[2][0] == defending_color and possible_move(piece, [pos[0], pos[1], board[pos[0]][pos[1]]], board) and safe_for_own_king(piece, [pos[0], pos[1], board[pos[0]][pos[1]]]):
+                    print("Can block attacker!")
+                    return False
+
+          # Check for rook
+          elif attacking_piece_type[1] == 'R':
+            path_positions = find_straight_positions_between(attacking_piece, king_piece)
+
+            for pos in path_positions:
+              for row_index in range(len(board)):
+                for column_index in range(len(board[row_index])):
+                  # See if every piece can capture
+                  piece = [row_index, column_index, board[row_index][column_index]]
+                  if piece[2][0] == defending_color and possible_move(piece, [pos[0], pos[1], board[pos[0]][pos[1]]], board) and safe_for_own_king(piece, [pos[0], pos[1], board[pos[0]][pos[1]]]):
+                    print("Can block attacker!")
+                    return False
+
+          # Check for queen (All other pieces attacks cant be blocked)
+          elif attacking_piece_type[1] == 'Q':
+            # If the queen is not horizontally or vertically aligned with the king it has to be attacking from the diagonal
+            path_positions = find_straight_positions_between(attacking_piece, king_piece)
+            if path_positions == []:
+              path_positions = find_diagonal_positions_between(attacking_piece, king_piece)
+
+            for pos in path_positions:
+              for row_index in range(len(board)):
+                for column_index in range(len(board[row_index])):
+                  # See if every piece can capture
+                  piece = [row_index, column_index, board[row_index][column_index]]
+                  if piece[2][0] == defending_color and possible_move(piece, [pos[0], pos[1], board[pos[0]][pos[1]]], board) and safe_for_own_king(piece, [pos[0], pos[1], board[pos[0]][pos[1]]]):
+                    print("Can block attacker!")
+                    return False
+
+
+          ## See if the attacker can be captured
+          for row_index in range(len(board)):
+              for column_index in range(len(board[row_index])):
+                # See if every piece can capture
+                piece = [row_index, column_index, board[row_index][column_index]]
+                if piece[2][0] == defending_color and possible_move(piece, attacking_piece, board) and safe_for_own_king(piece, attacking_piece):
+                  print("Can capture attacker!")
+                  return False
+          break # Safe
 
   ## Otherwise checkmate
   print("CHECKMATE")
@@ -445,6 +450,10 @@ def game_loop():
               elif active_piece[0] == 7 and active_piece[1] == 0:
                 can_white_castle_long = False
 
+              # If there is a promotion, make a queen
+              if active_piece[2] == 'wP' and hovering_piece[0] == 0:
+                active_piece[2] = 'wQ'
+
               board[active_piece[0]][active_piece[1]] = '  '
               board[hovering_piece[0]][hovering_piece[1]] = active_piece[2]
               highlight_square_1 = active_piece
@@ -452,7 +461,7 @@ def game_loop():
               white_to_play = False
               print("VALID")
               #            attacking pos, attacking piece type
-              is_checkmate(hovering_piece, active_piece[2])
+              is_checkmate(active_piece[2])
               active_piece = [-1, -1, '  ']
             else:
               print("KING IS NOT SAFE")
@@ -481,13 +490,18 @@ def game_loop():
               elif active_piece[0] == 0 and active_piece[1] == 0:
                 can_black_castle_long = False
 
+              # If there is a promotion, make a queen
+              if active_piece[2] == 'bP' and hovering_piece[0] == 7:
+                active_piece[2] = 'bQ'
+
               board[active_piece[0]][active_piece[1]] = '  '
               board[hovering_piece[0]][hovering_piece[1]] = active_piece[2]
               highlight_square_1 = [active_piece[0], active_piece[1]]
               highlight_square_2 = [hovering_piece[0], hovering_piece[1]]
               white_to_play = True
               print("VALID")
-              is_checkmate(hovering_piece, active_piece[2])
+              # is_checkmate(hovering_piece, active_piece[2])
+              is_checkmate(active_piece[2])
               active_piece = [-1, -1, '  ']
             else:
               print("KING IS NOT SAFE")
