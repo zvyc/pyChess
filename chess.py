@@ -390,7 +390,7 @@ def is_checkmate(attacking_piece_type):
                 if piece[2][0] == defending_color and possible_move(piece, attacking_piece, board) and safe_for_own_king(piece, attacking_piece):
                   print("Can capture attacker!")
                   return False
-          break # Safe
+          break # Safe (Only one attacker needs to be checked)
 
   ## Otherwise checkmate
   print("CHECKMATE")
@@ -547,6 +547,4 @@ if __name__ == '__main__':
 
   game_loop()
 
-# At the start of every turn, check if there is checkmate (make sure to check castling and en passant as a possible move)
 # Add en pessant
-# NOTE: Discovered checks can go under the is_checkmate radar as the last moved piece is considered the attacker, which is not the case in a discovered check.
